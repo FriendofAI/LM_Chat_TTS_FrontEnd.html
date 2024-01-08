@@ -1,1 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Chat</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #333333; /* Charcoal Gray */
+      color: #F8F8FF; /* Ghost White for general text */
+    }
 
+    .container {
+      display: flex;
+      height: 100%;
+    }
+
+    .menu {
+      width: 25%;
+      padding: 10px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      color: white;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      border-right: 4px solid #444;
+      height: 100vh;
+    }
+
+    .main-window {
+      flex-grow: 1;
+      margin-left: 25%;
+      padding: 10px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+	  overflow-x: hidden; /* Hide horizontal scrollbar */
+    }
+
+    .input-group, label, input, select, button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 5px;
+      box-sizing: border-box;
+    }
+
+    button {
+      cursor: pointer;
+      background-color: #6065d6; /* Change Dark theme button colors Green 4CAF50 */
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background-color: #7a7bff; /* Hover over button color dark theme 381986 692fff */
+    }
+
+    #message-input {
+      width: calc(100% - 16px);
+      resize: none;
+      overflow-y: hidden;
+    }
+
+    #chat-box {
+      flex-grow: 1;
+      height: 100%;
+      margin-bottom: 10px;
+      overflow-y: auto;
+      word-wrap: break-word;
+    }
+	/* Adjust the send button to align with the message input field */
+
+	
+
+/* Light theme styles */
+.light-theme {
+  background-color: #F8F8FF; /* White background for main content */
+  color: #082B5D; /* Dark blue text for good contrast */
+}
+
+.light-theme .menu {
+  background-color: #F0F0F0; /* Light grey for menu background */
+  color: #082B5D; /* Dark blue text for menu */
+  border-right: 4px solid #DDDDDD; /* Slightly darker border for contrast */
+}
+
+/* Menu label and input styles for the light theme */
+.light-theme .menu .input-group label {
+  background-color: transparent; /* Removing background from labels */
+  color: #082B5D; /* Dark blue text for readability */
+  border: none; /* Removing border from labels */
+}
+
+.light-theme .menu .input-group input,
+.light-theme .menu .input-group select {
+  background-color: #DCDCDC; /* Light grey for inputs and selects */
+  color: #082B5D; /* Dark blue text for readability */
+  border: 1px solid #C0C0C0; /* Subtle border for inputs */
+  outline: none; /* Removing the outline on focus */
+}
+
+/* Button styles for the light theme */
+.light-theme button {
+  background-color: #E0E0E0; /* Light grey for buttons */
+  color: #082B5D; /* Dark blue text for readability */
+  border: none; /* Removing the border */
+}
+
+.light-theme button:hover {
+  background-color: #D0D0D0; /* Slightly darker grey on hover */
+}
+
+/* Memory action buttons to match the Memory Log button */
+.light-theme .menu #summarize-log-button,
+.light-theme .menu #clear-log-button,
+.light-theme .menu #memory-log-button {
+  background-color: #E0E0E0; /* Same light grey as other buttons */
+  color: #082B5D; /* Dark blue text for readability */
+}
+
+/* Icon styles in buttons for the light theme */
+.light-theme .menu .fa-wrench,
+.light-theme .menu .fa-user,
+.light-theme .menu .fa-robot,
+.light-theme .menu .fa-tachometer-alt,
+.light-theme .menu .fa-brain,
+.light-theme .menu .fa-search,
+.light-theme .menu .fa-compress-arrows-alt,
+.light-theme .menu .fa-eraser,
+.light-theme .menu .fa-adjust {
+  color: #311d73; /* Dark blue for icons to match the text */
+}
+
+/* Adjusting the Toggle Theme button color */
+.light-theme .menu #theme-toggle-button {
+  background-color: #E0E0E0; /* Same light grey to match other buttons */
+  color: #311d73; /* Dark blue text for readability */
+}
+
+/* Chat box styles for the light theme */
+.light-theme #chat-box {
+  background-color: #FFFFFF; /* White background for the chat box */
+  color: #311d73; /* Dark blue text */
+  border: none; /* Removing the border */
+}
+
+
+
+/* Adjust the size of the message input to prevent horizontal scrolling */
+.light-theme #message-input {
+  width: 100%; /* Adjusted width to prevent overflow */
+  margin-right: 20px; /* Add margin to prevent scrollbar overlap */
+}
+
+
+<---- HTML --->
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Left Column (Menu) -->
+    <div class="menu" id="menu">
+      <h2 style="font-weight: bold; margin-bottom: 10px;">Menu</h2>
+	  
+	        <div class="input-group">
+        <label for="system-prompt">
+          <i class="fas fa-wrench"></i> System Prompt:
+        </label>
+        <input id="system-prompt" type="text" placeholder="Enter the system prompt here...">
+      </div>
+
+      <div class="input-group">
+        <label for="ai-name">
+          <i class="fas fa-robot"></i> Ai's Name:
+        </label>
+        <input id="ai-name" type="text" placeholder="Enter AI's name...">
+      </div>
+	  
+	        <div class="input-group">
+        <label for="llm-voice">
+          <i class="fas fa-robot"></i> Ai's Voice:
+        </label>
+        <select id="llm-voice">
+          <!-- LLM voice options here -->
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="llm-speed">
+          <i class="fas fa-tachometer-alt"></i> Ai's Voice Speed:
+        </label>
+        <input type="range" id="llm-speed" min="0.1" max="2" step="0.1" value="1">
+      </div>
+
+      <div class="input-group">
+        <label for="user-name">
+          <i class="fas fa-user"></i> User's Name:
+        </label>
+        <input id="user-name" type="text" placeholder="Enter your name...">
+      </div>
+
+
+      <div class="input-group">
+        <label for="user-voice">
+          <i class="fas fa-user"></i> User's Voice:
+        </label>
+        <select id="user-voice">
+          <option value="">Off</option>
+          <!-- Additional voice options here -->
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="user-speed">
+          <i class="fas fa-tachometer-alt"></i> User's Voice Speed:
+        </label>
+        <input type="range" id="user-speed" min="0.1" max="2" step="0.1" value="1">
+      </div>
+
+
+
+      <button onclick="viewLog()"><i class="fas fa-brain"></i> Memory Log</button>
+      <button id="summarize-log-button"><i class="fas fa-search"></i> Evaluate <i class="fas fa-compress-arrows-alt"></i>  Condence Memory</button>
+      <button id="clear-log-button"> <i class="fas fa-eraser"></i></i> Erase Memory</button>
+	  <P><P>
+	  <button id="theme-toggle-button"><i class="fas fa-adjust"></i> Toggle Theme</button>
+<P><P>
+	        <label for="custom-endpoint-input">Custom Endpoint (Optional):</label>
+      <input id="custom-endpoint-input" type="text" placeholder="Enter your own endpoint URL" value="http://localhost:1234/v1/chat/completions">
+
+
+
+    </div>
+
+    <!-- Right Column (Main Window) -->
+    <div class="main-window">
+	      <div id="thinking-indicator" style="text-align: center; display: none;">
+        <span id="thinking-text"> <i class="fas fa-brain"></i> Thinking...</span>
+      </div>
+
+      <div id="awaiting-user-input" style="text-align: center;">
+        <span id="awaiting-text"><i class="fas fa-user"></i><i class="fas fa-keyboard"></i> Awaiting User Input</span>
+      </div>
+<div id="chat-box"></div>
+<textarea id="message-input" placeholder="Type your message here..." style="width: 99.5%; resize: none; overflow-y: hidden;"></textarea>
+
+
+<button id="send-button" title="Send Message"><i class="fas fa-paper-plane"></i> Send</button>
+
+      <div style="text-align: center;">
+        <label for="auto-read">Auto Read</label>
+        <input type="checkbox" id="auto-read" checked title="Auto Read Latest Message">
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+
+
+
+ 
+ <!-- JavaScript code -->
+ <script>
+function viewLog() {
+    var log = localStorage.getItem("chatLog");
+    if (log) {
+        alert("Conversation Log:\n" + log);
+    } else {
+        alert("No conversation log found.");
+    }
+}
+
+ const synth = window.speechSynthesis;
+ const userVoiceSelect = document.getElementById('user-voice');
+ const llmVoiceSelect = document.getElementById('llm-voice');
+ const userSpeedInput = document.getElementById('user-speed');
+ const llmSpeedInput = document.getElementById('llm-speed');
+ const autoReadCheckbox = document.getElementById('auto-read');
+ const customEndpointInput = document.getElementById('custom-endpoint-input');
+ const systemPromptInput = document.getElementById('system-prompt');
+ const thinkingIndicator = document.getElementById('thinking-indicator');
+ const thinkingText = document.getElementById('thinking-text');
+ const awaitingUserInput = document.getElementById('awaiting-user-input');
+ const awaitingText = document.getElementById('awaiting-text');
+ const defaultEndpoint = 'http://localhost:1234/v1/chat/completions';
+ 
+ let paused = false;
+ let utterance;
+
+ function populateVoiceList() {
+   const voices = synth.getVoices();
+   for (const voice of voices) {
+     const option = document.createElement('option');
+     option.textContent = `${voice.name} (${voice.lang})`;
+     option.value = voice.voiceURI;
+     userVoiceSelect.appendChild(option);
+     llmVoiceSelect.appendChild(option.cloneNode(true));
+   }
+ }
+
+ if (synth.getVoices().length > 0) {
+   populateVoiceList();
+ } else {
+   synth.onvoiceschanged = populateVoiceList;
+ }
+
+ function speakText(message, voiceSelect, speedInput) {
+   if (synth.speaking) {
+     synth.cancel();
+   }
+
+   utterance = new SpeechSynthesisUtterance(message);
+   const selectedVoice = voiceSelect.value;
+
+   if (selectedVoice !== "" && selectedVoice !== "Off") {
+     const voices = synth.getVoices();
+
+     for (const voice of voices) {
+       if (voice.voiceURI === selectedVoice) {
+         utterance.voice = voice;
+         break;
+       }
+     }
+   } else {
+     return;
+   }
+
+   utterance.rate = speedInput.value;
+
+   if (autoReadCheckbox.checked) {
+     synth.speak(utterance);
+   }
+ }
+
+ function logMessage(message) {
+    var currentLog = localStorage.getItem("chatLog") || "";
+    localStorage.setItem("chatLog", currentLog + "\n" + message);
+}
+
+function displayMessage(message, isUserMessage = false, voiceSelect, speedInput) {
+    const aiNameInput = document.getElementById('ai-name');
+    const userNameInput = document.getElementById('user-name');
+    const aiName = aiNameInput.value || "AI"; // Get AI name set by the user
+    const userName = userNameInput.value || "User"; // Get user name set by the user
+    const displayName = isUserMessage ? userName : aiName;
+    
+    logMessage(displayName + ": " + message); // Log with the user-defined names
+
+    const chatBox = document.getElementById('chat-box');
+    const messageElement = document.createElement('p');
+    const userIcon = document.createElement('i');
+    userIcon.className = 'fas fa-user';
+    userIcon.style.color = '#007BFF';
+    const aiIcon = document.createElement('i');
+    aiIcon.className = 'fas fa-robot';
+    aiIcon.style.color = '#4CAF50';
+
+    if (isUserMessage) {
+        messageElement.appendChild(userIcon);
+    } else {
+        messageElement.appendChild(aiIcon);
+    }
+    messageElement.appendChild(document.createTextNode(' '));
+
+    const messageText = document.createElement('span');
+    messageText.textContent = displayName + ": " + message;
+    messageElement.appendChild(messageText);
+
+    chatBox.appendChild(messageElement);
+
+   const readButton = document.createElement('button');
+   readButton.innerHTML = '<i class="fas fa-volume-up"></i> Read Out Loud';
+   readButton.addEventListener('click', () => {
+     speakText(message, voiceSelect, speedInput);
+   });
+   messageElement.appendChild(readButton);
+
+   if (autoReadCheckbox.checked) {
+     speakText(message, voiceSelect, speedInput);
+   }
+
+   chatBox.scrollTop = chatBox.scrollHeight;
+ }
+
+ async function sendMessageToServer(message) {
+   try {
+     let endpoint = defaultEndpoint;
+
+     if (customEndpointInput.value.trim() !== '') {
+       endpoint = customEndpointInput.value.trim();
+     }
+
+     const userName = document.getElementById('user-name').value; // Get user name
+     const aiName = document.getElementById('ai-name').value; // Get AI name
+     const systemPrompt = document.getElementById('system-prompt').value; // Get system prompt
+
+     // Include conversation log in the system prompt
+     const conversationLog = localStorage.getItem("chatLog") || "";
+ const combinedSystemPrompt = `
+    Conversation log: ${conversationLog}. 
+    Additional Guidelines: You are ${'ai-name'}, who is ${systemPrompt}. You are replying to ${'user-name'}
+`;
+
+     thinkingIndicator.style.display = 'block';
+     thinkingText.textContent = 'Thinking...';
+
+     const response = await fetch(endpoint, {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({ 
+         messages: [
+           {"role": "system", "content": combinedSystemPrompt},
+           {"role": "user", "content": message}
+         ],
+         temperature: 0.7,
+         max_tokens: -1,
+         stream: false
+       }) 
+     });
+
+     const data = await response.json();
+     if (data && data.choices && data.choices[0] && data.choices[0].message) {
+       const replyMessage = data.choices[0].message.content || data.choices[0].message.text;
+       displayMessage(replyMessage, false, llmVoiceSelect, llmSpeedInput);
+     }
+   } catch (error) {
+     console.error('Error sending message:', error);
+   } finally {
+     thinkingIndicator.style.display = 'none';
+     thinkingText.textContent = '';
+     awaitingUserInput.style.display = 'block';
+   }
+ }
+
+const sendButton = document.getElementById('send-button');
+sendButton.addEventListener('click', () => {
+    const messageInput = document.getElementById('message-input');
+    const messageText = messageInput.value;
+    if (messageText.trim() !== '') {
+        awaitingUserInput.style.display = 'none';
+        displayMessage(messageText, true, userVoiceSelect, userSpeedInput);
+        sendMessageToServer(messageText);
+        messageInput.value = '';
+        messageInput.style.height = '20px'; // Reset textarea height after sending message
+    }
+});
+
+const messageInput = document.getElementById('message-input');
+messageInput.addEventListener('input', function () {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+});
+
+messageInput.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault(); // Prevent the default Enter key action (newline)
+        sendButton.click();
+    }
+});
+
+
+ // Clear Conversation Log Button
+ const clearLogButton = document.getElementById('clear-log-button');
+ clearLogButton.addEventListener('click', () => {
+   // Clear the conversation log in localStorage
+   localStorage.removeItem('chatLog');
+
+   // Clear the chat box on the UI
+ //  const chatBox = document.getElementById('chat-box');
+ //  chatBox.innerHTML = '';
+
+   // Inform the user that the log has been cleared
+   alert('Conversation log has been cleared.');
+ });
+ 
+ // Add the button event listener
+document.getElementById('summarize-log-button').addEventListener('click', summarizeLog);
+ 
+// Updated summarizeLog function
+// Updated summarizeLog function
+async function summarizeLog() {
+    const log = localStorage.getItem("chatLog");
+    if (log) {
+        try {
+            // Prepare the message for the LM to summarize the log
+            const messages = [
+                {"role": "system", "content": " Provide an accurate psycological evaluation of ${'user-name'}. Condense and list data efficiently."},
+                {"role": "user", "content": log}
+            ];
+
+            // Send a request to your local LM server
+            const response = await fetch(defaultEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: messages, temperature: 0.7 })
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            const summary = data.choices[0].message.content || data.choices[0].message.text;
+
+            // Replace the old log with the summary in localStorage
+            localStorage.setItem("chatLog", summary);
+
+            // Optional: Update UI with new log
+            // const chatBox = document.getElementById('chat-box');
+            // chatBox.innerHTML = '';
+            // displayMessage(summary, false, llmVoiceSelect, llmSpeedInput);
+        } catch (error) {
+            console.error("Error in summarizing log: ", error);
+            alert("Failed to summarize the conversation log.");
+        }
+    } else {
+        alert("No conversation log found.");
+    }
+}
+
+document.getElementById('theme-toggle-button').addEventListener('click', function() {
+    document.body.classList.toggle('light-theme');
+});
+
+
+ 
+ </script>
+
+
+<script>
+// Function to save settings to local storage
+function saveSettings() {
+   localStorage.setItem('aiName', document.getElementById('ai-name').value);
+    localStorage.setItem('aiVoice', document.getElementById('llm-voice').value);
+    localStorage.setItem('aiSpeed', document.getElementById('llm-speed').value);
+    localStorage.setItem('userName', document.getElementById('user-name').value);
+    localStorage.setItem('userVoice', document.getElementById('user-voice').value);
+    localStorage.setItem('userSpeed', document.getElementById('user-speed').value);
+    localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+    localStorage.setItem('systemPrompt', document.getElementById('system-prompt').value); // Saving System Prompt
+}
+
+// Function to load settings from local storage
+function loadSettings() {
+    document.getElementById('ai-name').value = localStorage.getItem('aiName') || '';
+    document.getElementById('llm-voice').value = localStorage.getItem('aiVoice') || '';
+    document.getElementById('llm-speed').value = localStorage.getItem('aiSpeed') || '1';
+    document.getElementById('user-name').value = localStorage.getItem('userName') || '';
+    document.getElementById('user-voice').value = localStorage.getItem('userVoice') || '';
+    document.getElementById('user-speed').value = localStorage.getItem('userSpeed') || '1';
+    document.getElementById('system-prompt').value = localStorage.getItem('systemPrompt') || ''; // Loading System Prompt
+    if (localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light-theme');
+    }
+}
+
+// Event listeners to save settings when they are changed
+document.getElementById('ai-name').addEventListener('change', saveSettings);
+document.getElementById('llm-voice').addEventListener('change', saveSettings);
+document.getElementById('llm-speed').addEventListener('change', saveSettings);
+document.getElementById('user-name').addEventListener('change', saveSettings);
+document.getElementById('user-voice').addEventListener('change', saveSettings);
+document.getElementById('user-speed').addEventListener('change', saveSettings);
+document.getElementById('system-prompt').addEventListener('change', saveSettings); // Event listener for System Prompt
+document.getElementById('theme-toggle-button').addEventListener('click', saveSettings);
+
+// Load settings when the document is loaded
+document.addEventListener('DOMContentLoaded', loadSettings);
+</script>
+
+
+</body>
+</html>
