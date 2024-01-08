@@ -406,10 +406,7 @@ function displayMessage(message, isUserMessage = false, voiceSelect, speedInput)
 
      // Include conversation log in the system prompt
      const conversationLog = localStorage.getItem("chatLog") || "";
- const combinedSystemPrompt = `
-    Conversation log: ${conversationLog}. 
-    Additional Guidelines: You are ${'ai-name'}, who is ${systemPrompt}. You are replying to ${'user-name'}
-`;
+  const combinedSystemPrompt = `User's name is ${userName}, AI's name is ${aiName}. Direction: [As an AI Large Language Model, follow the user's instructions and take the identity of their initial description.]. Memory: ${conversationLog} ${systemPrompt}`;
 
      thinkingIndicator.style.display = 'block';
      thinkingText.textContent = 'Thinking...';
@@ -577,6 +574,10 @@ document.getElementById('theme-toggle-button').addEventListener('click', saveSet
 // Load settings when the document is loaded
 document.addEventListener('DOMContentLoaded', loadSettings);
 </script>
+
+
+</body>
+</html>
 
 
 </body>
