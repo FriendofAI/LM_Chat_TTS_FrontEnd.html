@@ -8,12 +8,13 @@ LM_Chat_TTS_FrontEnd is a simple yet powerful interface for interacting with LM 
 
 Instructions:
 --------
+- Download the stand alone HTML file LM_Chat_TTS_FrontEnd.html (created with HTML, JavaScript, CSS)
 - Open LM Studios and load your LM of choice
 - Go to the Local Server Tab
 - Choose the Preset from LM Studios that goes with your model
 - Turn on Cross-Origin-Resource-Sharing (CORS)
 - Start Server
-- Open HTML Document in the Edge Browser (For best voice options)
+- Open the HTML Document LM_Chat_TTS_FrontEnd.html in the Edge Browser (For best voice options)
 - Type in the System Promt, AI Name, Choose the AI voice, Your your name, and choose a voice for you (optional
 - Type your message and hit send
 - Select Erase memory if the AI is getting confused to reset memory
