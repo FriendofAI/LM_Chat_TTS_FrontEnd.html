@@ -10,6 +10,7 @@ Instructions:
 --------
 - Download the stand alone HTML file LM_Chat_TTS_FrontEnd.html (created with HTML, JavaScript, CSS)
 - Open LM Studios and load your LM of choice
+- Test out the model within LM studios to ensure it is working nativly, get the settings you want.
 - Go to the Local Server Tab
 - Choose the Preset from LM Studios that goes with your model
 - Turn on Cross-Origin-Resource-Sharing (CORS)
