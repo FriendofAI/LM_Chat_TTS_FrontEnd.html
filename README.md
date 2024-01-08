@@ -6,9 +6,17 @@ LM_Chat_TTS_FrontEnd is a simple yet powerful interface for interacting with LM 
 
 LM_Chat_TTS_FrontEnd is a simple yet powerful interface for interacting with LM Studio models using text-to-speech functionality. This project is designed to be lightweight and user-friendly, making it suitable for a wide range of users interested in exploring voice interactions with AI models.
 
-Recomended Browser:
+Instructions:
 --------
-Microsoft Edge - The voice choices rely on the browser, Edge has a large range of AI multilingual neuro voices. Try different ones, as they have various generations of AI voices.
+- Open LM Studios and load your LM of choice
+- Go to the Local Server Tab
+- Choose the Preset from LM Studios that goes with your model
+- Turn on Cross-Origin-Resource-Sharing (CORS)
+- Start Server
+- Open HTML Document in the Edge Browser (For best voice options)
+- Type in the System Promt, AI Name, Choose the AI voice, Your your name, and choose a voice for you (optional
+- Type your message and hit send
+- Select Erase memory if the AI is getting confused to reset memory
 
 Features
 --------
