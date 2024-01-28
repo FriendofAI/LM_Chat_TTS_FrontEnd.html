@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Simple Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css">
   <style>
     html, body {
@@ -30,7 +31,14 @@
       left: 0;
       border-right: 4px solid #444;
       height: 100vh;
+  transform: translateX(0%); /* Start on-screen */
+  transition: transform 0.3s ease-in-out;
     }
+	/* When the menu is not visible, move it off-screen */
+.menu:not(.visible) {
+  transform: translateX(-100%);
+  
+}
 
     .main-window {
       flex-grow: 1;
@@ -42,6 +50,8 @@
       height: 100%;
       overflow-y: auto;
 	  overflow-x: hidden; /* Hide horizontal scrollbar */
+	 
+	 
     }
 
     .input-group, label, input, select, button {
@@ -156,20 +166,87 @@
 
 /* Adjust the size of the message input to prevent horizontal scrolling */
 .light-theme #message-input {
-  width: 100%; /* Adjusted width to prevent overflow */
-  margin-right: 20px; /* Add margin to prevent scrollbar overlap */
+  width: calc(100% - 20px); /* Adjusted width to prevent overflow */
+  margin-right: 10px; /* Adjust margin to prevent scrollbar overlap */
 }
 
 
-<---- HTML --->
+/* Menu Toggle Button - fixed in the top left corner of the menu */
+.menu-toggle {
+  display: block;
+  position: fixed;
+  top: 10px; /* Adjusted to align with the top of the menu */
+  left: 10px; /* Adjusted to align with the left of the menu */
+  z-index: 2;
+  background-color: #6065d6; /* Color of the button */
+  border: none;
+  color: white;
+  padding: 8px; /* Padding to make the button a perfect square */
+  width: 30px; /* Fixed width for consistency */
+  height: 30px; /* Height equal to width to form a square */
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
+
+
+
+/* Adjustments for the main window when the menu is closed */
+.menu:not(.visible) ~ .main-window {
+  margin-left: 0; /* Full width when the menu is closed */
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* When the menu is visible, adjust main window margin */
+.menu.visible ~ .main-window {
+  margin-left: 25%; /* Adjust margin to accommodate the menu width */
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .menu {
+    width: 100%; /* Full width on small screens */
+    transform: translateX(-100%); /* Start off-screen */
+  }
+
+  .menu.visible {
+    transform: translateX(0); /* Slide in on toggle */
+  }
+
+  .main-window {
+    margin-left: 0; /* Remove margin when menu is visible */
+    transition: margin-left 0.3s ease-in-out;
+  }
+
+  .menu.visible ~ .main-window {
+    margin-left: 100%; /* Move main window to the right when menu is open */
+  }
+}
+
+
+
+
+
+  </style>
+
 
   </style>
 </head>
 <body>
+
+  <!-- Menu Toggle Button -->
+  <button class="menu-toggle" onclick="toggleMenu()">
+    <i class="fas fa-bars"></i>
+  </button>
+
   <div class="container">
-    <!-- Left Column (Menu) -->
-    <div class="menu" id="menu">
-      <h2 style="font-weight: bold; margin-bottom: 10px;">Menu</h2>
+    <!-- Left Column (Menu) - Added 'visible' class to start out open -->
+    <div class="menu visible" id="menu">
+   
+      <h2 style="font-weight: bold; margin-bottom: 10px; text-align: center;">Menu</h2>
+
 	  
 	        <div class="input-group">
         <label for="system-prompt">
@@ -270,7 +347,36 @@
 
  
  <!-- JavaScript code -->
- <script>
+ 
+  <script>
+
+// Revised JavaScript for toggling the menu and handling window resize
+
+function toggleMenu() {
+    var menu = document.getElementById("menu");
+    var mainWindow = document.querySelector(".main-window");
+    menu.classList.toggle("visible");
+
+    // Adjust mainWindow margin based on screen width
+    if (menu.classList.contains("visible")) {
+        mainWindow.style.marginLeft = window.innerWidth <= 768 ? "100%" : "25%";
+    } else {
+        mainWindow.style.marginLeft = "0";
+    }
+}
+
+window.addEventListener('resize', function() {
+    var menu = document.getElementById("menu");
+    var mainWindow = document.querySelector(".main-window");
+
+    // Correctly adjust layout when resizing the window
+    if (window.innerWidth > 768) {
+        mainWindow.style.marginLeft = menu.classList.contains("visible") ? "25%" : "0";
+    } else {
+        mainWindow.style.marginLeft = menu.classList.contains("visible") ? "100%" : "0";
+    }
+});
+
 function viewLog() {
     var log = localStorage.getItem("chatLog");
     if (log) {
@@ -575,10 +681,8 @@ document.getElementById('theme-toggle-button').addEventListener('click', saveSet
 document.addEventListener('DOMContentLoaded', loadSettings);
 </script>
 
-
 </body>
 </html>
-
 
 </body>
 </html>
