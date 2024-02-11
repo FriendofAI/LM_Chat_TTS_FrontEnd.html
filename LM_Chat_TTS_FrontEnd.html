@@ -309,6 +309,72 @@
 }
 
 
+
+.ai-profile-icon {
+    display: inline-block;
+    width: 30px; /* Adjust size as needed */
+    height: 30px; /* Adjust size as needed */
+    border-radius: 50%; /* Makes it circular */
+    background-size: cover;
+    background-position: center;
+    margin-right: 5px; /* Gives some space between the icon and the text */
+    vertical-align: middle;
+}
+
+/* Styles for the drag-and-drop area */
+.drag-drop-area {
+    padding: 0;
+    text-align: center;
+    cursor: pointer;
+    background-color: #6065d6;
+    width: 350px; /* Set the width and height to maintain a fixed circular shape */
+    height: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 10px auto 0; /* Remove space underneath and provide space above */
+    border-radius: 50%; /* Ensure the border itself is circular */
+    overflow: hidden; /* Hide overflowing parts of the border */
+	    border: 2px solid #7a7bff; /* Change border color and style on hover */
+}
+
+.image-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+	
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Crop and center the image within the container */
+    object-position: center center; /* Center the image within the container */
+    border-radius: 50%; /* Circular mask */
+	
+}
+
+.drag-drop-area:hover {
+    background-color: #f0f0f0; /* Light background on hover */
+    border: 2px solid #ffffff; /* Change border color and style on hover */
+}
+
+.drag-drop-label {
+    display: block;
+    margin: 0 auto;
+    font-size: 16px;
+    color: #6065d6; /* Text color */
+}
+
+
+
+
+
+
+
+
   </style>
 </head>
 <body>
@@ -323,6 +389,23 @@
     <div class="menu visible" id="menu">
    
       <h2 style="font-weight: bold; margin-bottom: 10px; text-align: center;">Menu</h2>
+<div class="input-group">
+    <label for="ai-profile-picture-input">AI Profile Picture:</label>
+    <div id="drag-drop-area" class="drag-drop-area">
+        <input type="file" id="ai-profile-picture-input" accept="image/*" style="display: none;" onchange="updateImage(this.files[0])">
+        <img id="profile-picture" src="path_to_default_image.png" alt="AI Profile Picture" onclick="document.getElementById('ai-profile-picture-input').click();" style="width: 100%; height: 100%; border-radius: 50%; cursor: pointer; object-fit: cover;">
+        <div id="placeholder-text" style="display: none;">AI Profile Picture here</div>
+    </div>
+</div>
+
+
+
+
+<div class="profile-picture-preview" id="profile-picture-preview">
+    <!-- Preview of profile picture will be shown here -->
+</div>
+<!-- Rest of your HTML content... -->
+
 
 	  
 	        <div class="input-group">
@@ -332,13 +415,17 @@
         <input id="system-prompt" type="text" placeholder="Enter the system prompt here...">
       </div>
 
-      <div class="input-group">
-        <label for="ai-name">
-          <i class="fas fa-robot"></i> Ai's Name:
-        </label>
-        <input id="ai-name" type="text" placeholder="Enter AI's name...">
-      </div>
-	  
+<div class="input-group">
+    <label for="ai-name">
+      <!-- Remove the icon here if you want to replace it with an image -->
+      Ai's Name:
+    </label>
+    <input id="ai-name" type="text" placeholder="Enter AI's name...">
+    <!-- Add a container for the image here -->
+    <div id="ai-profile-icon" class="ai-profile-icon"></div>
+</div>
+
+
 	        <div class="input-group">
         <label for="llm-voice">
           <i class="fas fa-robot"></i> Ai's Voice:
@@ -379,6 +466,7 @@
         </label>
         <input type="range" id="user-speed" min="0.1" max="2" step="0.1" value="1">
       </div>
+
 
 
 
@@ -605,11 +693,30 @@ function displayMessage(message, isUserMessage = false, voiceSelect, speedInput)
 
   const chatBox = document.getElementById('chat-box');
   const messageElement = document.createElement('p');
-  const icon = document.createElement('i');
-  icon.className = isUserMessage ? 'fas fa-user' : 'fas fa-robot';
-  icon.style.color = isUserMessage ? '#007BFF' : '#4CAF50';
-  messageElement.appendChild(icon);
-  messageElement.appendChild(document.createTextNode(' '));
+  if (isUserMessage) {
+    const userIcon = document.createElement('i');
+    userIcon.className = 'fas fa-user';
+    userIcon.style.color = '#007BFF';
+    messageElement.appendChild(userIcon);
+} else {
+    const storedPicture = localStorage.getItem('aiProfilePicture');
+    if (storedPicture) {
+        const aiImg = new Image();
+        aiImg.src = storedPicture;
+        aiImg.alt = 'AI Profile Picture';
+        aiImg.style.width = '20px';
+        aiImg.style.height = '20px';
+        aiImg.style.borderRadius = '50%';
+        aiImg.style.marginRight = '5px';
+        messageElement.appendChild(aiImg);
+    } else {
+        const aiIcon = document.createElement('i');
+        aiIcon.className = 'fas fa-robot';
+        aiIcon.style.color = '#4CAF50';
+        messageElement.appendChild(aiIcon);
+    }
+}
+
 
 // Check for code block within the message
 const codeStartIndex = message.indexOf('```');
@@ -902,9 +1009,124 @@ document.getElementById('theme-toggle-button').addEventListener('click', saveSet
 // Load settings when the document is loaded
 document.addEventListener('DOMContentLoaded', loadSettings);
 </script>
+<script>
+
+
+
+// JavaScript Function to Handle Profile Picture Changes
+document.getElementById('ai-profile-picture-input').addEventListener('change', function(event) {
+    if (event.target.files && event.target.files[0]) {
+        updateImage(event.target.files[0]);
+    }
+});
+
+function updateProfilePicture() {
+    var storedPicture = localStorage.getItem('aiProfilePicture');
+    var dragDropArea = document.getElementById('drag-drop-area');
+    
+    dragDropArea.innerHTML = ''; // Clear the previous content
+    
+    if (storedPicture) {
+        var img = new Image();
+        img.onload = function() {
+            // Attach the click event listener once the image is fully loaded
+            img.addEventListener('click', function() {
+                document.getElementById('ai-profile-picture-input').click();
+            });
+        };
+        img.src = storedPicture;
+        img.alt = 'AI Profile Picture';
+        img.style = 'width: 100%; height: auto; border-radius: 50%; cursor: pointer;';
+        
+        dragDropArea.appendChild(img);
+    } else {
+        // If no picture is stored, show the label
+        var label = document.createElement('label');
+        label.setAttribute('for', 'ai-profile-picture-input');
+        label.className = 'drag-drop-label';
+        label.textContent = 'Drag & Drop your image here or click to select';
+        dragDropArea.appendChild(label);
+    }
+}
+
+
+function setupDragAndDrop() {
+    var dropArea = document.getElementById('drag-drop-area');
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false); // Prevent defaults on the entire body element as well.
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight(e) {
+        dropArea.classList.add('highlight');
+    }
+
+    function unhighlight(e) {
+        dropArea.classList.remove('highlight');
+    }
+
+    dropArea.addEventListener('drop', handleDrop, false);
+
+    dropArea.addEventListener('click', function(e) {
+        if (e.target.tagName === 'IMG') {
+            document.getElementById('ai-profile-picture-input').click();
+        }
+    });
+
+    function handleDrop(e) {
+        var dt = e.dataTransfer;
+        var files = dt.files;
+
+        if (files.length) {
+            updateImage(files[0]);
+        }
+    }
+}
+
+// This function is called when the file input changes
+function updateImage(file) {
+    if (!file) {
+        return; // Exit if no file is selected
+    }
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        // Update local storage with the new image
+        localStorage.setItem('aiProfilePicture', e.target.result);
+        // Update the image source with the new image
+        document.getElementById('profile-picture').src = e.target.result;
+    };
+    reader.readAsDataURL(file); // Start reading the file as DataURL
+}
+
+// When the DOM is fully loaded, set the profile picture from local storage
+document.addEventListener('DOMContentLoaded', function() {
+    var storedPicture = localStorage.getItem('aiProfilePicture');
+    if (storedPicture) {
+        document.getElementById('profile-picture').src = storedPicture;
+    } else {
+        // Set default SVG image as profile picture
+        document.getElementById('profile-picture').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%23cccccc'/%3E%3Cpath d='M50,58c-22,0-40,18-40,40h80C90,76,72,58,50,58z' fill='%23b3b3b3'/%3E%3Ccircle cx='50' cy='40' r='22' fill='%23ffffff'/%3E%3C/svg%3E";
+    }
+});
+
+
+</script>
 
 </body>
 </html>
 
-</body>
-</html>
